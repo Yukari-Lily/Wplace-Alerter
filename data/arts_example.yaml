@@ -1,0 +1,35 @@
+# 图片拉取代理地址
+https_proxy: "http://127.0.0.1:7890"
+
+# HTTP 端口（用于refresh）
+http_port: 8000
+
+# 检查冷却时间（秒）
+cooldown: 30
+
+# 推送时显示像素修改条数（多的会被省略）
+diff:
+  max_points: 10
+
+# napcat配置
+napcat:
+  base_url: "http://127.0.0.1:3000"   # http服务器地址（留空则不推送）
+  access_token: ""                    # 可留空
+  target_type: group                  # group/private
+  id: 123456789                       # 群号或QQ号
+
+# 要监控的像素画
+arts:
+  example1: 
+    name: "example A" #用于输出和推送的画名
+    track: true       #启用开关
+    api_image: "https://backend.wplace.live/files/s0/tiles/0/0.png" #图片地址
+    start_coords: { x: 100, y: 200 } #起始坐标
+    end_coords:   { x: 132, y: 228 } #结束坐标
+
+  example2:
+    name: "example B" #用于输出和推送的画名
+    track: true       #启用开关
+    api_image: "https://backend.wplace.live/files/s0/tiles/1/1.png" #图片地址
+    start_coords: { x:   0, y:  0 } #起始坐标
+    end_coords:   { x:  64, y: 64 } #结束坐标
