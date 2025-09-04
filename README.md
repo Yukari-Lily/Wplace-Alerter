@@ -1,4 +1,4 @@
-# wplace画作监控
+# Wplace-Alerter
 >每30秒检查一次是否被修改/毁坏，如有修改会通过napcat推送给QQ
 
 ---
