@@ -23,13 +23,13 @@ arts:
   example1: 
     name: "example A" #用于输出和推送的画名
     track: true       #启用开关
-    api_image: "https://backend.wplace.live/files/s0/tiles/Tl X/Tl Y.png" #图片地址 可以手动拼接（将网站中显示的像素坐标中的(Tl X: 0, Tl Y: 0）值替换左边实例地址中的Tl X和Tl Y），或者wplace.live下F12找到画所在的图片地址
+    api_image: "https://backend.wplace.live/files/s0/tiles/Tl X/Tl Y.png" #图片地址 可以手动拼接（将网站中显示的像素坐标中的Tl X和Tl Y值替换左边实例地址中的Tl X和Tl Y），或者wplace.live下F12找到画所在的图片地址
     start_coords: { x: 100, y: 200 } #起始坐标（即网站中显示的像素坐标中的X和Y值，也是监控矩形的左上角，建议比需要监控的画大1-2像素）
     end_coords:   { x: 132, y: 228 } #结束坐标（即网站中显示的像素坐标中的X和Y值，也是监控矩形的右下角，建议比需要监控的画大1-2像素）
 
   example2:
     name: "example B" #用于输出和推送的画名
     track: true       #启用开关
-    api_image: "https://backend.wplace.live/files/s0/tiles/Tl X/Tl Y.png" #图片地址
+    api_image: "https://backend.wplace.live/files/s0/tiles/Tl X/Tl Y.png" #图片地址 可以手动拼接（将网站中显示的像素坐标中的Tl X和Tl Y值替换左边实例地址中的Tl X和Tl Y），或者wplace.live下F12找到画所在的图片地址
     start_coords: { x:   0, y:  0 } #起始坐标（即网站中显示的像素坐标中的X和Y值，也是监控矩形的左上角，建议比需要监控的画大1-2像素）
     end_coords:   { x:  64, y: 64 } #结束坐标（即网站中显示的像素坐标中的X和Y值，也是监控矩形的右下角，建议比需要监控的画大1-2像素）
