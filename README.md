@@ -14,3 +14,4 @@
    ```bash
    python main.py
     ```
+>由[Nekoraru22/wplace-alerter](https://github.com/Nekoraru22/wplace-alerter)修改并中文化而来❤
