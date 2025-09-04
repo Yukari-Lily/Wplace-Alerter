@@ -5,4 +5,4 @@ requests==2.32.4
 Flask==3.0.3
 waitress==3.0.0
 PyYAML==6.0.2
-numpy==1.26.4
+numpy>=2.0,<2.3
