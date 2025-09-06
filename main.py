@@ -629,29 +629,53 @@ class RefreshWorker:
 def create_http_app(worker: RefreshWorker, settings: Dict) -> Flask:
     app = Flask(__name__)
 
-    @app.post("/refresh")
-    def http_refresh():
-        try:
-            data = request.get_json(silent=True) or {}
-            key = data.get("key")
-            refresh_all = bool(data.get("all"))
+    def _do_refresh(all_flag: bool = False, key: Optional[str] = None) -> Tuple[Dict, int]:
+        results = []
 
-            results = []
-            if refresh_all:
-                for k, art in (settings.get("arts") or {}).items():
+        try:
+            arts = (settings.get("arts") or {})
+            if all_flag:
+                for k, art in arts.items():
                     if not art.get("track"):
                         continue
                     res = worker.orch.set_current_as_baseline(k)
                     results.append({"key": k, **res})
-            elif key:
+                return {"ok": True, "results": results}, 200
+
+            if key:
+                art = arts.get(key)
+                if not art:
+                    return {"ok": False, "error": f"未找到 key={key} 的条目"}, 404
+                if not art.get("track"):
+                    return {"ok": False, "error": f"key={key} 未开启 track"}, 400
                 res = worker.orch.set_current_as_baseline(key)
                 results.append({"key": key, **res})
-            else:
-                return jsonify({"ok": False, "error": "缺少参数：需要提供 key 或 all=true"}), 400
+                return {"ok": True, "results": results}, 200
 
-            return jsonify({"ok": True, "results": results})
+            return {"ok": False, "error": "缺少参数：需要提供 key 或 all=true"}, 400
         except Exception as e:
-            return jsonify({"ok": False, "error": str(e)}), 500
+            return {"ok": False, "error": str(e)}, 500
+
+    # 原有 POST：支持 {"all": true} 或 {"key": "xxx"}
+    @app.post("/refresh")
+    def http_refresh_post():
+        data = request.get_json(silent=True) or {}
+        all_flag = bool(data.get("all"))
+        key = data.get("key")
+        payload, status = _do_refresh(all_flag=all_flag, key=key)
+        return jsonify(payload), status
+
+    # 新增 GET：刷新全部
+    @app.get("/refresh/all")
+    def http_refresh_all():
+        payload, status = _do_refresh(all_flag=True)
+        return jsonify(payload), status
+
+    # 新增 GET：刷新单个
+    @app.get("/refresh/<key>")
+    def http_refresh_one(key: str):
+        payload, status = _do_refresh(key=key)
+        return jsonify(payload), status
 
     return app
 
