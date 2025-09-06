@@ -688,10 +688,12 @@ def main(arts_data: dict):
     signal.signal(signal.SIGINT, cleanup)
     signal.signal(signal.SIGTERM, cleanup)
 
+
+    http_cfg = arts_data.get("http", {}) or {}
+    host = str(http_cfg.get("host", "127.0.0.1"))
+    port = int(http_cfg.get("port", 8000))
+
     app = create_http_app(worker, arts_data)
-    http_cfg = arts_data.get("http", {})
-    host = http_cfg.get("host", "127.0.0.1")
-    port = int(arts_data.get("port", 8000))
     print(f"{now_str()} HTTP 已启动：{host}:{port}")
 
     def http_serve():
