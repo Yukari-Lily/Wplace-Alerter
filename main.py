@@ -628,51 +628,32 @@ class RefreshWorker:
 
 def create_http_app(worker: RefreshWorker, settings: Dict) -> Flask:
     app = Flask(__name__)
+    app.json.ensure_ascii = False
+    app.json.sort_keys = False
 
-    def _do_refresh(all_flag: bool = False, key: Optional[str] = None) -> Tuple[Dict, int]:
+    def _do_refresh(all_flag: bool = False, key: Optional[str] = None):
         results = []
-
-        try:
-            arts = (settings.get("arts") or {})
-            if all_flag:
-                for k, art in arts.items():
-                    if not art.get("track"):
-                        continue
-                    res = worker.orch.set_current_as_baseline(k)
-                    results.append({"key": k, **res})
-                return {"ok": True, "results": results}, 200
-
-            if key:
-                art = arts.get(key)
-                if not art:
-                    return {"ok": False, "error": f"未找到 key={key} 的条目"}, 404
+        if all_flag:
+            for k, art in (settings.get("arts") or {}).items():
                 if not art.get("track"):
-                    return {"ok": False, "error": f"key={key} 未开启 track"}, 400
-                res = worker.orch.set_current_as_baseline(key)
-                results.append({"key": key, **res})
-                return {"ok": True, "results": results}, 200
-
-            return {"ok": False, "error": "缺少参数：需要提供 key 或 all=true"}, 400
-        except Exception as e:
-            return {"ok": False, "error": str(e)}, 500
-
-    # 原有 POST：支持 {"all": true} 或 {"key": "xxx"}
-    @app.post("/refresh")
-    def http_refresh_post():
-        data = request.get_json(silent=True) or {}
-        all_flag = bool(data.get("all"))
-        key = data.get("key")
-        payload, status = _do_refresh(all_flag=all_flag, key=key)
-        return jsonify(payload), status
+                    continue
+                res = worker.orch.set_current_as_baseline(k)
+                results.append({"key": k, **res})
+            return {"ok": True, "results": results}, 200
+        elif key:
+            res = worker.orch.set_current_as_baseline(key)
+            return {"ok": True, "result": {"key": key, **res}}, 200
+        else:
+            return {"ok": False, "error": "缺少参数"}, 400
 
     # 新增 GET：刷新全部
-    @app.get("/refresh/all")
+    @app.route("/refresh/all", methods=["GET"])
     def http_refresh_all():
         payload, status = _do_refresh(all_flag=True)
         return jsonify(payload), status
 
     # 新增 GET：刷新单个
-    @app.get("/refresh/<key>")
+    @app.route("/refresh/<key>", methods=["GET"])
     def http_refresh_one(key: str):
         payload, status = _do_refresh(key=key)
         return jsonify(payload), status
