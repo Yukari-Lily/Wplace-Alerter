@@ -689,11 +689,13 @@ def main(arts_data: dict):
     signal.signal(signal.SIGTERM, cleanup)
 
     app = create_http_app(worker, arts_data)
-    port = int(arts_data.get("http_port", 8000))
-    print(f"{now_str()} HTTP 已启动：127.0.0.1:{port}")
+    http_cfg = arts_data.get("http", {})
+    host = http_cfg.get("host", "127.0.0.1")
+    port = int(arts_data.get("port", 8000))
+    print(f"{now_str()} HTTP 已启动：{host}:{port}")
 
     def http_serve():
-        serve(app, host="127.0.0.1", port=port)
+        serve(app, host=host, port=port)
 
     http_thread = threading.Thread(target=http_serve, daemon=True)
     http_thread.start()

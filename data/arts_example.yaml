@@ -2,7 +2,9 @@
 https_proxy: "http://127.0.0.1:7890"
 
 # HTTP 端口（用于refresh）
-http_port: 8000
+http:
+  host: "127.0.0.1"
+  port: 8000
 
 # 检查冷却时间（秒）
 cooldown: 30
