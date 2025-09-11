@@ -476,27 +476,35 @@ class Orchestrator:
 
             # 若已有索引哈希且一致：直接判为无变化
             if old_idx_hash and new_idx_hash == old_idx_hash:
-                if key in self.alerted_once:
-                    self.alerted_once.discard(key)
                 save_bytes(f"{path}new.png", cropped_bytes)
-                print(Fore.LIGHTGREEN_EX + "未检测到像素变化。（hash检测）")
-                return {"status": "nochange", "message": f"未变化：{name}（hash检测）"}
+                if key in self.alerted_once:
+                    self.notifier.send(message=f"[Wplace]{name}已恢复喵！")
+                    self.alerted_once.discard(key)
+                    print(Fore.LIGHTGREEN_EX + "图像已被恢复。（hash检测）")
+                    return {"status": "restored", "message": f"已恢复：{name}（hash检测）"}
+                else:
+                    print(Fore.LIGHTGREEN_EX + "未检测到像素变化。（hash检测）")
+                    return {"status": "nochange", "message": f"未变化：{name}（hash检测）"}
 
             # 1.5) 二进制哈希短路
             old_good_bytes = read_bytes(f"{path}good.png")
             if old_good_bytes is not None:
                 if bytes_hash(cropped_bytes) == bytes_hash(old_good_bytes):
-                    # 同时补写/校正索引哈希文件
+                    # 同步/校正 good.hash
                     try:
                         good_idx_hash = self.diff.index_hash_from_png_bytes(old_good_bytes)
                         save_text(hash_path, good_idx_hash)
                     except Exception:
                         pass
-                    if key in self.alerted_once:
-                        self.alerted_once.discard(key)
                     save_bytes(f"{path}new.png", cropped_bytes)
-                    print(Fore.LIGHTGREEN_EX + "未检测到像素变化。（hash检测）")
-                    return {"status": "nochange", "message": f"未变化：{name}（hash检测）"}
+                    if key in self.alerted_once:
+                        self.notifier.send(message=f"[Wplace]{name}已恢复喵！")
+                        self.alerted_once.discard(key)
+                        print(Fore.LIGHTGREEN_EX + "图像已被恢复。（二进制hash）")
+                        return {"status": "restored", "message": f"已恢复：{name}（hash检测）"}
+                    else:
+                        print(Fore.LIGHTGREEN_EX + "未检测到像素变化。（hash检测）")
+                        return {"status": "nochange", "message": f"未变化：{name}（hash检测）"}
 
             # 2) 保存 new
             save_bytes(f"{path}new.png", cropped_bytes)
@@ -532,17 +540,22 @@ class Orchestrator:
 
             # 4) 索引图严格判定
             if self.diff.same_index(good_idx, new_idx):
-                if key in self.alerted_once:
-                    self.alerted_once.discard(key)
                 try:
                     save_text(hash_path, new_idx_hash)
                 except Exception:
                     pass
-                print(Fore.LIGHTGREEN_EX + "未检测到像素变化。（像素判定）")
-                return {"status": "nochange", "message": f"未变化：{name}（像素判定）"}
+                if key in self.alerted_once:
+                    self.notifier.send(message=f"[Wplace]{name}已恢复喵！")
+                    self.alerted_once.discard(key)
+                    print(Fore.LIGHTGREEN_EX + "图像已被恢复。（像素判定）")
+                    return {"status": "restored", "message": f"已恢复：{name}（像素判定）"}
+                else:
+                    print(Fore.LIGHTGREEN_EX + "未检测到像素变化。（像素判定）")
+                    return {"status": "nochange", "message": f"未变化：{name}（像素判定）"}
 
             if restored:
                 if key in self.alerted_once:
+                    self.notifier.send(message=f"[Wplace]{name}已恢复喵！")
                     self.alerted_once.discard(key)
                 print(Fore.LIGHTGREEN_EX + "图像已被恢复。")
                 save_bytes(f"{path}good.png", cropped_bytes)
